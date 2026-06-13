@@ -37,7 +37,8 @@ export const api = {
   logout: () => request('/auth/logout/', { method: 'POST' }),
   catalog: () => request('/catalog/'),
   compute: (payload) => request('/compute/', { method: 'POST', body: payload }),
-  // Quote persistence (list / create / retrieve / delete) is wired up in Phase 3.
+  // Quote persistence.
   listQuotes: () => request('/quotes/'),
   createQuote: (payload) => request('/quotes/', { method: 'POST', body: payload }),
+  deleteQuote: (id) => request('/quotes/' + id + '/', { method: 'DELETE' }),
 };

@@ -95,10 +95,12 @@ export function Stepper({ steps, active, maxStep, onGo }) {
 }
 
 export function PartnerMark({ partner, size = 42 }) {
+  const c1 = partner.color_primary;
+  const c2 = partner.color_secondary;
   return (
     <span className="partner-mark" style={{
       width: size, height: size, fontSize: size * 0.36,
-      background: 'linear-gradient(135deg, ' + partner.c1 + ' 0%, ' + partner.c1 + ' 55%, ' + partner.c2 + ' 55%, ' + partner.c2 + ' 100%)'
+      background: 'linear-gradient(135deg, ' + c1 + ' 0%, ' + c1 + ' 55%, ' + c2 + ' 55%, ' + c2 + ' 100%)'
     }}>
       {partner.name.charAt(0)}
     </span>
@@ -108,8 +110,8 @@ export function PartnerMark({ partner, size = 42 }) {
 export function PartnerBadge({ partner, t }) {
   return (
     <span className="badge blue" style={{ gap: 7 }}>
-      <span className="dot-sw" style={{ background: partner.c1 }}></span>
-      {partner.name} · {partner.basis === 'kg' ? t('perKg') : t('perUnit')} · {t('priceList')} {partner.listVersion} ✓
+      <span className="dot-sw" style={{ background: partner.color_primary }}></span>
+      {partner.name} · {partner.basis === 'kg' ? t('perKg') : t('perUnit')} · {t('priceList')} {partner.price_list_version} ✓
     </span>
   );
 }

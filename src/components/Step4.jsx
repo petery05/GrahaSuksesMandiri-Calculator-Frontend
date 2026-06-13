@@ -1,10 +1,8 @@
-// Step 4 · Generate tender — template picker + live document preview + export.
-// Export buttons show a toast for now; real PDF/Excel generation arrives in
-// Phase 4 via the Django API.
+// Step 4 · Generate tender — preview + save. Export to real PDF/Excel is Phase 4;
+// the download buttons remain stubs. Pricing/preview come from the backend result.
 
 import { fmtIDR } from '../lib/format.js';
 import { I18N, makeT } from '../lib/i18n.js';
-import { computeQuote } from '../lib/pricing.js';
 import { Card, Btn } from './ui.jsx';
 
 const TPL_META = [
@@ -13,13 +11,15 @@ const TPL_META = [
   { id: 'pdf2', icon: 'PDF', color: '#327EBC' }
 ];
 
-function DocPreview({ quote, q, lang, tpl }) {
+function DocPreview({ quote, computed, lang, tpl }) {
   const bilingual = tpl === 'pdf2';
   const excel = tpl === 'xlsx';
   const lbl = (key) => {
     if (!bilingual) return makeT(lang)(key);
     return I18N[key].id + ' / ' + I18N[key].en;
   };
+  const prodName = (l) => (bilingual ? l.product_name_id + ' / ' + l.product_name_en
+    : (lang === 'id' ? l.product_name_id : l.product_name_en));
   const today = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
   return (
     <div className={'doc-preview' + (excel ? ' excel' : '')}>
@@ -32,7 +32,7 @@ function DocPreview({ quote, q, lang, tpl }) {
           </div>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontWeight: 700, color: 'var(--navy)' }}>{lbl('tender')} #Q-1042</div>
+          <div style={{ fontWeight: 700, color: 'var(--navy)' }}>{lbl('tender')}</div>
           <div className="muted" style={{ fontSize: 9 }}>{lbl('date')}: {today}</div>
         </div>
       </div>
@@ -46,22 +46,21 @@ function DocPreview({ quote, q, lang, tpl }) {
           <tr><th>{lbl('line')}</th><th className="num">{lbl('qty')}</th><th className="num">{lbl('total')}</th></tr>
         </thead>
         <tbody>
-          {q.lines.map((l) => (
-            <tr key={l.line.id}>
-              <td>{bilingual ? l.prod.name.id + ' / ' + l.prod.name.en : l.prod.name[lang]}
-                <span className="muted"> · {l.line.w}×{l.line.h}</span></td>
-              <td className="num">{l.line.qty}</td>
+          {computed.lines.map((l, i) => (
+            <tr key={i}>
+              <td>{prodName(l)}<span className="muted"> · {l.width}×{l.height}</span></td>
+              <td className="num">{l.qty}</td>
               <td className="num">{fmtIDR(l.total)}</td>
             </tr>
           ))}
-          <tr><td>{lbl('assembly')}</td><td className="num">—</td><td className="num">{fmtIDR(q.assembly)}</td></tr>
-          <tr><td>{lbl('logistics')}</td><td className="num">—</td><td className="num">{fmtIDR(q.logistics)}</td></tr>
-          <tr><td>{lbl('installation')}</td><td className="num">—</td><td className="num">{fmtIDR(q.installation)}</td></tr>
+          <tr><td>{lbl('assembly')}</td><td className="num">—</td><td className="num">{fmtIDR(computed.assembly)}</td></tr>
+          <tr><td>{lbl('logistics')}</td><td className="num">—</td><td className="num">{fmtIDR(computed.logistics)}</td></tr>
+          <tr><td>{lbl('installation')}</td><td className="num">—</td><td className="num">{fmtIDR(computed.installation)}</td></tr>
         </tbody>
       </table>
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 16, fontSize: 10 }}>
         <span className="muted">{lbl('margin')} {quote.marginPct}%</span>
-        <span style={{ fontWeight: 700, fontSize: 12, color: 'var(--navy)' }}>{lbl('quoteTotal')}: {fmtIDR(q.grandTotal)}</span>
+        <span style={{ fontWeight: 700, fontSize: 12, color: 'var(--navy)' }}>{lbl('quoteTotal')}: {fmtIDR(computed.grand_total)}</span>
       </div>
       <div style={{ marginTop: 'auto' }}>
         <div className="doc-rule" style={{ borderTopWidth: 1 }}></div>
@@ -71,9 +70,11 @@ function DocPreview({ quote, q, lang, tpl }) {
   );
 }
 
-export function Step4({ quote, update, t, lang, toast }) {
-  const q = computeQuote(quote, lang);
+export function Step4({ quote, update, t, lang, computed, toast, onSave, saving }) {
   const tpls = I18N.templates[lang];
+  if (!computed) {
+    return <p className="muted" style={{ padding: 20 }}>{t('computing')}</p>;
+  }
   return (
     <div>
       <div className="cols" style={{ gridTemplateColumns: '320px 1fr' }}>
@@ -96,16 +97,21 @@ export function Step4({ quote, update, t, lang, toast }) {
               })}
             </div>
           </Card>
+          <Card title={t('saveQuote')}>
+            <Btn kind="primary" disabled={saving} onClick={onSave} style={{ width: '100%', justifyContent: 'center' }}>
+              {saving ? t('saving') : t('saveQuote')}
+            </Btn>
+          </Card>
           <Card title={t('exportT')}>
             <div style={{ display: 'flex', gap: 10 }}>
-              <Btn kind="primary" onClick={() => toast(t('generated'))}>⬇ {t('downloadXlsx')}</Btn>
+              <Btn kind="ghost" onClick={() => toast(t('generated'))}>⬇ {t('downloadXlsx')}</Btn>
               <Btn kind="ghost" onClick={() => toast(t('generated'))}>⬇ {t('downloadPdf')}</Btn>
             </div>
           </Card>
         </div>
         <Card title={t('preview')}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: '8px 0' }}>
-            <DocPreview quote={quote} q={q} lang={lang} tpl={quote.templateId} />
+            <DocPreview quote={quote} computed={computed} lang={lang} tpl={quote.templateId} />
             <span className="small muted">{t('page')} · ‹ ›</span>
           </div>
         </Card>

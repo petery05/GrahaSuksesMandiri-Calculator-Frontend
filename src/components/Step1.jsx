@@ -1,10 +1,9 @@
-// Step 1 · Client & partner
+// Step 1 · Client & partner — partners come from the backend catalog.
 
 import { I18N } from '../lib/i18n.js';
-import { PARTNERS } from '../lib/data.js';
 import { Card, Field, TextInput, SelectInput, Badge, PartnerMark } from './ui.jsx';
 
-export function Step1({ quote, update, t, lang }) {
+export function Step1({ quote, update, t, lang, catalog }) {
   const types = I18N.projectTypes[lang];
   return (
     <div>
@@ -30,16 +29,16 @@ export function Step1({ quote, update, t, lang }) {
         <div>
           <Card title={t('choosePartner')}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {PARTNERS.map((p) => (
-                <button key={p.id} className={'partner-card' + (quote.partnerId === p.id ? ' selected' : '')}
-                  onClick={() => update(['partnerId'], p.id)}>
+              {catalog.partners.map((p) => (
+                <button key={p.code} className={'partner-card' + (quote.partner === p.code ? ' selected' : '')}
+                  onClick={() => update(['partner'], p.code)}>
                   <PartnerMark partner={p} />
                   <span style={{ flex: 1 }}>
                     <span className="p-name">{p.name}</span>
                     <span className="badge" style={{ marginLeft: 8 }}>{p.basis === 'kg' ? t('perKg') : t('perUnit')}</span>
-                    <div className="p-meta">{t('priceList')} {p.listVersion} · {t('updated')} {p.updatedAt}</div>
+                    <div className="p-meta">{t('priceList')} {p.price_list_version} · {t('updated')} {p.price_list_updated}</div>
                   </span>
-                  {p.isCurrent
+                  {p.is_current
                     ? <Badge kind="ok">✓ {t('current')}</Badge>
                     : <Badge kind="warn">! {t('stale')}</Badge>}
                 </button>

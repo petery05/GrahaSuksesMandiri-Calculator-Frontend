@@ -105,7 +105,22 @@ export const I18N = {
   username: { id: 'Nama pengguna', en: 'Username' },
   password: { id: 'Kata sandi', en: 'Password' },
   signingIn: { id: 'Memproses…', en: 'Signing in…' },
-  signInError: { id: 'Nama pengguna atau kata sandi salah.', en: 'Invalid username or password.' }
+  signInError: { id: 'Nama pengguna atau kata sandi salah.', en: 'Invalid username or password.' },
+  builder: { id: 'Penyusun', en: 'Builder' },
+  myQuotes: { id: 'Penawaran saya', en: 'My quotes' },
+  saveQuote: { id: 'Simpan penawaran', en: 'Save quote' },
+  saving: { id: 'Menyimpan…', en: 'Saving…' },
+  savedAs: { id: 'Tersimpan sebagai', en: 'Saved as' },
+  saveError: { id: 'Gagal menyimpan penawaran.', en: 'Could not save the quote.' },
+  open: { id: 'Buka', en: 'Open' },
+  duplicate: { id: 'Duplikat', en: 'Duplicate' },
+  confirmDelete: { id: 'Hapus penawaran ini?', en: 'Delete this quote?' },
+  noQuotes: { id: 'Belum ada penawaran tersimpan.', en: 'No saved quotes yet.' },
+  loading: { id: 'Memuat…', en: 'Loading…' },
+  computing: { id: 'Menghitung…', en: 'Calculating…' },
+  loadError: { id: 'Gagal memuat data dari server.', en: 'Failed to load data from the server.' },
+  createdAt: { id: 'Dibuat', en: 'Created' },
+  validUntil: { id: 'Berlaku hingga', en: 'Valid until' }
 };
 
 export function makeT(lang) {
